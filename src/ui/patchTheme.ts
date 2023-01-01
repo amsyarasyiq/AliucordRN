@@ -46,149 +46,42 @@ export default function patchTheme() {
 }
 
 function enableCustomTheme() {
+    // theme credit: https://raw.githubusercontent.com/Joksy/Joksy-Enmity/main/Joksys-Theme-V1/Joksys.json
     const newTcm = {
-        "HEADER_PRIMARY": [
-            "#e792c1",
-            "#060607"
-        ],
-        "HEADER_SECONDARY": [
-            "#fefffe",
-            "#4f5660"
-        ],
-        "TEXT_NORMAL": [
-            "#FBFBFB",
-            "#2e3338"
-        ],
-        "TEXT_MUTED": [
-            "#e792c1",
-            "#747f8d"
-        ],
-        "INTERACTIVE_NORMAL": [
-            "#fefffe",
-            "#4f5660"
-        ],
-        "INTERACTIVE_HOVER": [
-            "#dcddde",
-            "#2e3338"
-        ],
-        "INTERACTIVE_ACTIVE": [
-            "#95a7fd",
-            "#060607"
-        ],
-        "INTERACTIVE_MUTED": [
-            "#697eab",
-            "#c7ccd1"
-        ],
-        "CHAT_BACKGROUND": [
-            "#212027",
-            "#123456"
-        ],
-        "BACKGROUND_PRIMARY": [
-            "#24232b",
-            "#123456"
-        ],
-        "BACKGROUND_SECONDARY": [
-            "#24232b",
-            "#f2f3f5"
-        ],
-        "BACKGROUND_SECONDARY_ALT": [
-            "#24232b",
-            "#ebedef"
-        ],
-        "BACKGROUND_TERTIARY": [
-            "#212028",
-            "#e3e5e8"
-        ],
-        "BACKGROUND_ACCENT": [
-            "#95a7fd",
-            "#747f8d"
-        ],
-        "BACKGROUND_FLOATING": [
-            "#1b1a25",
-            "#FFFFFF"
-        ],
-        "BACKGROUND_MOBILE_PRIMARY": [
-            "#1b1a25",
-            "#f8f9f9"
-        ],
-        "BACKGROUND_MOBILE_SECONDARY": [
-            "#24232b",
-            "#ffffff"
-        ],
-        "BACKGROUND_NESTED_FLOATING": [
-            "#24232b",
-            "#ffffff"
-        ],
-        "BACKGROUND_MESSAGE_HOVER": [
-            "rgba(255, 255, 255, 0.02)",
-            "#FFFFFF"
-        ],
-        "BACKGROUND_MODIFIER_HOVER": [
-            "rgba(255, 255, 255, 0.02)",
-            "hsla(214, 9.9%, 50.4%, 0.08)"
-        ],
-        "BACKGROUND_MODIFIER_ACTIVE": [
-            "rgba(255, 255, 255, 0.03)",
-            "hsla(214, 9.9%, 50.4%, 0.16)"
-        ],
-        "BACKGROUND_MODIFIER_SELECTED": [
-            "rgba(255, 255, 255, 0.04)",
-            "hsla(214, 9.9%, 50.4%, 0.24)"
-        ],
-        "BACKGROUND_MODIFIER_ACCENT": [
-            "transparent",
-            "hsla(240, 7.7%, 2.5%, 0.08)"
-        ],
-        "SCROLLBAR_THIN_THUMB": [
-            "#2a1858",
-            "hsla(217, 7.6%, 33.5%, 0.3)"
-        ],
-        "SCROLLBAR_THIN_TRACK": [
-            "transparent",
-            "hsla(0, 0%, 0%, 0)"
-        ],
-        "SCROLLBAR_AUTO_THUMB": [
-            "#2a1858",
-            "#cccccc"
-        ],
-        "SCROLLBAR_AUTO_TRACK": [
-            "rgba(0, 0, 0, 0.1)",
-            "#f2f2f2"
-        ],
-        "CHANNELTEXTAREA_BACKGROUND": [
-            "#111111",
-            "#ebedef"
-        ],
-        "CHANNELS_DEFAULT": [
-            "#b6b6b6",
-            "#6a7480"
-        ],
-        "TEXT_LINK": [
-            "#95a7fd",
-            "#000000"
-        ],
-        "ANDROID_NAVIGATION_BAR_BACKGROUND": [
-            "#24232b",
-            "#f2f3f5"
-        ]
+        "BACKGROUND_PRIMARY": ["#141a2e", "#141a2e"],
+        "BACKGROUND_SECONDARY": ["#212133", "#212133"],
+        "BACKGROUND_SECONDARY_ALT": ["#2d2d54", "#2d2d54"],
+        "BACKGROUND_TERTIARY": ["#0c121c", "#0c121c"],
+        "BACKGROUND_ACCENT": ["#1d2540", "#1d2540"],
+        "BACKGROUND_FLOATING": ["#121721", "#121721"],
+        "BACKGROUND_MOBILE_PRIMARY": ["#141a2e", "#141a2e"],
+        "BACKGROUND_MOBILE_SECONDARY": ["#141a2e", "#141a2e"],
+        "BACKGROUND_MODIFIER_ACTIVE": ["#0c101c", "#0c101c"],
+        "BACKGROUND_MODIFIER_SELECTED": ["#0c101c", "#0c101c"],
+        "BACKGROUND_NESTED_FLOATING": ["#212133", "#212133"],
+        "CHANNELS_DEFAULT": ["#c2c2c2", "#c2c2c2"],
+        "CHAT_BACKGROUND": ["#141a2e", "#141a2e"],
+        "HEADER_PRIMARY": ["#ffffff", "#ffffff"],
+        "HEADER_SECONDARY": ["#c2c2c2", "#c2c2c2"],
+        "INTERACTIVE_ACTIVE": ["#ffffff", "#FFFFFF"],
+        "INTERACTIVE_NORMAL": ["#d0d1d4", "#d0d1d4"],
+        "TEXT_MUTED": ["#c2c2c2", "#c2c2c2"],
+        "TEXT_NORMAL": ["#ffffff", "#FFFFFF"]
     };
 
     const newColors = {
-        "PRIMARY_DARK": "#747474",
-        "PRIMARY_DARK_100": "#FFFFFF",
-        "PRIMARY_DARK_200": "#FFFFFF",
-        "PRIMARY_DARK_300": "#fefffe",
-        "PRIMARY_DARK_360": "#fcfdfc",
-        "PRIMARY_DARK_400": "#bebee3",
-        "PRIMARY_DARK_500": "#697eab",
-        "PRIMARY_DARK_600": "#212027",
-        "PRIMARY_DARK_630": "#343843",
-        "PRIMARY_DARK_700": "#1a1b21",
-        "PRIMARY_DARK_800": "#212027",
-        "BRAND_NEW": "#86a2de",
-        "STATUS_RED": "#c18ea4",
-        "STATUS_GREEN_600": "#87a2de",
-        "STATUS_YELLOW": "#c18ea4"
+        "PRIMARY_DARK": "#1F2125",
+        "PRIMARY_DARK_100": "#C2C2C2",
+        "PRIMARY_DARK_300": "#c2c2c2",
+        "PRIMARY_DARK_360": "#FFFFFF",
+        "PRIMARY_DARK_400": "#282C37",
+        "PRIMARY_DARK_500": "#1F2125",
+        "PRIMARY_DARK_600": "#1F2125",
+        "PRIMARY_DARK_630": "#1F2125",
+        "PRIMARY_DARK_700": "#14161A",
+        "PRIMARY_DARK_800": "#14161A",
+        "BRAND_NEW": "#7288DA",
+        "WHITE": "#FFFFFF"
     };
 
     window.AliuHermes.unfreeze(Constants.ThemeColorMap);
@@ -196,9 +89,11 @@ function enableCustomTheme() {
     window.AliuHermes.unfreeze(Constants.UNSAFE_Colors);
 
     for (const key in Constants.ThemeColorMap) {
+        Constants.ThemeColorMap[key][2] = Constants.ThemeColorMap[key][0];
         if (newTcm[key]) {
             Constants.ThemeColorMap[key][2] = newTcm[key]?.[0];
             Constants.ThemeColorMap[key][1] = newTcm[key]?.[1];
+
             logger.info("Patched theme color", key);
         }
     }
