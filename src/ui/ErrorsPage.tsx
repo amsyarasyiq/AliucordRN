@@ -1,8 +1,10 @@
 import { plugins } from "../api";
-import { Constants, Forms, React, ReactNative, Styles } from "../metro";
+import { Constants, React, Styles } from "../metro";
 import { getAssetId } from "../utils";
+import { Forms, General } from "./components";
 
-const { Image, ScrollView, View, Text, FlatList } = ReactNative;
+const { Image, ScrollView, View, Text, FlatList } = General;
+const { FormRow, FormText } = Forms;
 
 interface PluginLogs {
     plugin: {
@@ -15,26 +17,34 @@ interface PluginLogs {
 const styles = Styles.createThemedStyleSheet({
     container: {
         flex: 1,
-        padding: 5
+        padding: 1
     },
     list: {
         padding: 10,
     },
     card: {
-        borderRadius: 5,
-        margin: 10,
+        borderRadius: 10,
+        margin: 5,
         backgroundColor: Styles.ThemeColorMap.BACKGROUND_TERTIARY,
     },
     header: {
         flexDirection: "row",
         flexWrap: "wrap"
     },
+    divider: {
+        width: "100%",
+        height: 2,
+        borderBottomWidth: 1,
+        borderColor: Styles.ThemeColorMap.BACKGROUND_MODIFIER_ACCENT
+    },
     bodyCard: {
         backgroundColor: Styles.ThemeColorMap.BACKGROUND_SECONDARY,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10
     },
     bodyText: {
         color: Styles.ThemeColorMap.TEXT_NORMAL,
-        padding: 16,
+        padding: 16
     },
     text: {
         fontFamily: Constants.Fonts.PRIMARY_SEMIBOLD,
@@ -67,16 +77,17 @@ const styles = Styles.createThemedStyleSheet({
 function ErrorCard({ log }: { log: PluginLogs; }) {
     return (
         <View style={styles.card}>
-            <Forms.FormRow
+            <FormRow
                 label={(
                     <View style={styles.header}>
                         <Text style={styles.text}>
-                            {log.plugin.name} (v{log.plugin.version}) had an error.
+                            {log.plugin.name} (v{log.plugin.version ?? "0.0.0"}) had an error.
                         </Text>
                     </View>)
                 } />
+            <View style={styles.divider} />
             <View style={styles.bodyCard}>
-                <Forms.FormText style={styles.bodyText}>{log.errors}</Forms.FormText>
+                <FormText style={styles.bodyText}>{log.errors}</FormText>
             </View>
         </View>
     );

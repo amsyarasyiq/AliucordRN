@@ -1,46 +1,71 @@
-import { disablePlugin, enablePlugin, isPluginEnabled, plugins } from "../api/PluginManager";
-import { PluginManifest } from "../entities/types";
-import { Constants, Forms, getByProps, getModule, React, ReactNative, Styles } from "../metro";
+import { disablePlugin, enablePlugin, isPluginEnabled, plugins, uninstallPlugin } from "../api/PluginManager";
+import { Author, PluginManifest } from "../entities";
+import { Constants, FetchUserActions, Navigation, Profiles, React, Styles, URLOpener, Users } from "../metro";
 import { getAssetId } from "../utils/getAssetId";
+import { Page } from "./Page";
+import { General, Button, Search, Forms } from "./components";
 
-const { View, Text, FlatList, Image, ScrollView } = ReactNative;
-const Search = getModule(m => m.name === "StaticSearchBarContainer");
+let handleUninstall: (name: string) => void;
+const multipleAuthors = (i: number, authors: Author[]): any => {
+    if (i !== authors.length - 1)
+        return true;
+    else 
+        return false;
+};
+const { View, Text, FlatList,  Image, ScrollView, Pressable, LayoutAnimation } = General;
 
 const styles = Styles.createThemedStyleSheet({
     container: {
-        flex: 1,
-        padding: 5
+        flex: 1
     },
     list: {
-        padding: 10,
+        padding: 5,
     },
     card: {
-        borderRadius: 5,
-        margin: 10,
+        borderRadius: 10,
+        margin: 5,
         backgroundColor: Styles.ThemeColorMap.BACKGROUND_TERTIARY,
     },
     header: {
         flexDirection: "row",
         flexWrap: "wrap"
     },
+    divider: {
+        width: "100%",
+        height: 2,
+        borderBottomWidth: 1,
+        borderColor: Styles.ThemeColorMap.BACKGROUND_MODIFIER_ACCENT
+    },
     bodyCard: {
         backgroundColor: Styles.ThemeColorMap.BACKGROUND_SECONDARY,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10
     },
     bodyText: {
         color: Styles.ThemeColorMap.TEXT_NORMAL,
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingTop: 10,
+        paddingBottom: 14
+    },
+    actions: {
+        justifyContent: "flex-start",
+        flexDirection: "row",
+        alignItems: "center",
+        paddingLeft: 16,
+        paddingRight: 12,
+        paddingBottom: 10
+    },
+    icons: {
+        width: 22,
+        height: 22,
+        tintColor: Styles.ThemeColorMap.INTERACTIVE_NORMAL
     },
     text: {
         fontFamily: Constants.Fonts.PRIMARY_SEMIBOLD,
         color: Styles.ThemeColorMap.TEXT_NORMAL,
-        fontSize: 16,
-        lineHeight: 22
+        fontSize: 16
     },
     link: {
-        marginLeft: 5,
-        fontFamily: Constants.Fonts.PRIMARY_SEMIBOLD,
-        fontSize: 16,
-        lineHeight: 22,
         color: Styles.ThemeColorMap.TEXT_LINK
     },
     noPlugins: {
@@ -65,31 +90,51 @@ const styles = Styles.createThemedStyleSheet({
         backgroundColor: "none",
         borderBottomWidth: 0,
         background: "none"
+    },
+    button: {
+        paddingHorizontal: 20,
     }
 });
 
-function PluginCard({ plugin }: { plugin: PluginManifest; }) {
+function PluginCard({ plugin }: { plugin: PluginManifest }) {
     const [isEnabled, setIsEnabled] = React.useState(isPluginEnabled(plugin.name));
+    const { FormSwitch, FormText } = Forms;
 
     return (
         <View style={styles.card}>
             <Forms.FormRow
                 label={(
-                    <View style={styles.header}>
-                        <Text style={styles.text}>
-                            {plugin.name} v{plugin.version} by
-                        </Text>
-                        {plugin.authors.map((a, i) => (
-                            <Text
-                                key={a.id}
-                                style={styles.link}
-                                onPress={() => getByProps("showUserProfile").showUserProfile({ userId: a.id })}
-                            >
-                                {a.name}{i !== plugin.authors.length - 1 && ","}
-                            </Text>
-                        ))}
-                    </View>)}
-                trailing={<Forms.FormSwitch value={isEnabled} onValueChange={v => {
+                    <Text style={styles.text} adjustsFontSizeToFit={true}>
+                        {plugin.name} v{plugin.version ?? "0.0.0"} by {plugin.authors ?
+                            plugin.authors.map((a, i: number) => (
+                                a.id ?
+                                    <Text
+                                        key={a.id}
+                                        style={styles.link}
+                                        onPress={() => {
+                                            if (!Users.getUser(a.id)) {
+                                                FetchUserActions.fetchProfile(a.id).then(() => {
+                                                    Profiles.showUserProfile({ userId: a.id });
+                                                });
+                                            } else {
+                                                Profiles.showUserProfile({ userId: a.id });
+                                            }
+                                        }}
+                                    >
+                                        {a.name}{multipleAuthors(i, plugin.authors as Author[]) && <Text style={styles.text}>, </Text>}
+                                    </Text>
+                                    :
+                                    <Text>
+                                        {a.name}{multipleAuthors(i, plugin.authors as Author[]) && <Text>, </Text>}
+                                    </Text>
+                            ))
+                            :
+                            <Text>
+                                Unknown
+                            </Text>}
+                    </Text>
+                )}
+                trailing={<FormSwitch value={isEnabled} style={{ marginVertical: -15 }} onValueChange={v => {
                     if (v)
                         enablePlugin(plugin.name);
                     else
@@ -99,7 +144,41 @@ function PluginCard({ plugin }: { plugin: PluginManifest; }) {
                 }} />}
             />
             <View style={styles.bodyCard}>
-                <Forms.FormText style={styles.bodyText}>{plugin.description}</Forms.FormText>
+                <FormText style={styles.bodyText} adjustsFontSizeToFit={true}>{plugin.description ?? "No description provided."}</FormText>
+                <View style={styles.actions}>
+                    {!!plugin.repo && (
+                        <Pressable style={styles.icons} onPress={() => URLOpener.openURL(plugin.repo)}>
+                            <Image source={getAssetId("img_account_sync_github_white")} />
+                        </Pressable>
+                    )}
+                    <View style={{ marginLeft: "auto" }}>
+                        <View style={{ flexDirection: "row" }} >
+                            {!!plugins[plugin.name].getSettingsPage && <Button
+                                text="Settings"
+                                style={{ ...styles.button, marginHorizontal: 6 }}
+                                color='brand'
+                                size='small'
+                                onPress={() => {
+                                    Navigation.push(Page, {
+                                        name: plugin.name,
+                                        children: plugins[plugin.name].getSettingsPage,
+                                    });
+                                }}
+                            />}
+                            <Button
+                                text="Uninstall"
+                                style={styles.button}
+                                color='red'
+                                size='small'
+                                onPress={() => {
+                                    uninstallPlugin(plugin.name).then(res => {
+                                        res && handleUninstall(plugin.name);
+                                    });
+                                }}
+                            />
+                        </View>
+                    </View>
+                </View>
             </View>
         </View>
     );
@@ -108,7 +187,7 @@ function PluginCard({ plugin }: { plugin: PluginManifest; }) {
 export default function PluginsPage() {
     const [search, setSearch] = React.useState(String);
 
-    const entities = search ? Object.values(plugins).filter(p => {
+    const [entities, setEntities] = React.useState(search ? Object.values(plugins).filter(p => {
         const { name, description, authors } = p.manifest;
 
         if (name.toLowerCase().includes(search.toLowerCase())) {
@@ -124,13 +203,24 @@ export default function PluginsPage() {
         }
 
         return false;
-    }) : Object.values(plugins);
+    }) : Object.values(plugins));
+
+    handleUninstall = (name: string) => {
+        setEntities(entities.filter(item => item.name !== name));
+
+        LayoutAnimation.configureNext({
+            duration: 300,
+            update: {
+                type: LayoutAnimation.Types.easeInEaseOut,
+            }
+        });
+    };
 
     return (<>
         <Search
             style={styles.search}
             placeholder='Search plugins...'
-            onChangeText={(v: string) => setSearch(v)}
+            onChangeText={v => setSearch(v)}
         />
         <ScrollView style={styles.container}>
             {!entities.length ?

@@ -2,12 +2,11 @@ import Badges from "../core-plugins/Badges";
 import CommandHandler from "../core-plugins/CommandHandler";
 import CoreCommands from "../core-plugins/CoreCommands";
 import NoTrack from "../core-plugins/NoTrack";
-import { Plugin } from "../entities/Plugin";
-import { Toasts } from "../metro";
-import { readdir } from "../native/fs";
-import { getAssetId } from "../utils";
+import { PluginManifest, Plugin } from "../entities";
+import { Dialog, Toasts } from "../metro";
+import { readdir, exists, deleteFile } from "../native/fs";
+import { getAssetId, Logger } from "../utils";
 import { PLUGINS_DIRECTORY } from "../utils/constants";
-import { Logger } from "../utils/Logger";
 
 const logger = new Logger("PluginManager");
 export const plugins = {} as Record<string, Plugin>;
@@ -43,6 +42,47 @@ export async function disablePlugin(plugin: string) {
     window.Aliucord.settings.set("plugins", settingsPlugins);
 }
 
+export async function uninstallPlugin(plugin: string): Promise<boolean> {
+    const settingsPlugins = window.Aliucord.settings.get("plugins", {});
+
+    try {
+        const confirm = await new Promise((resolve) => {
+            Dialog.show({
+                title: `Uninstall ${plugin}?`,
+                body: "Are you sure? This will stop and delete the plugin's files and cannot be undone.",
+                confirmText: "Uninstall",
+                cancelText: "Cancel",
+                confirmColor: "red",
+                isDismissable: true,
+                onConfirm: () => resolve(true),
+                onCancel: () => resolve(false),
+            });
+        });
+
+        if (!confirm) return false;
+
+        logger.info(`Uninstalling plugin ${plugin}`);
+
+        const pluginInstance = plugins[plugin];
+        if (pluginInstance.localPath && exists(pluginInstance.localPath)) {
+            deleteFile(pluginInstance.localPath);
+
+            await pluginInstance.stop();
+            delete plugins[plugin];
+            delete settingsPlugins[plugin];
+
+            Toasts.open({ content: `Uninstalled plugin: ${plugin}`, source: getAssetId("trash") });
+        }
+    } catch (err) {
+        logger.error(`Failed to uninstall plugin ${plugin}\n`, err);
+        Toasts.open({ content: `Failed to uninstall plugin: ${plugin}`, source: getAssetId("Small") });
+        return false;
+    }
+
+    window.Aliucord.settings.set("plugins", settingsPlugins);
+    return true;
+}
+
 export async function startPlugins() {
     for (const file of readdir(PLUGINS_DIRECTORY)) {
         if (!file.name.endsWith(".zip")) continue;
@@ -74,6 +114,7 @@ export async function startCorePlugins() {
                 name,
                 description: "",
                 version: "1.0.0",
+                repo: "https://github.com/Aliucord/AliucordRN",
                 authors: [{ name: "Aliucord", id: "000000000000000000" }]
             });
 
@@ -89,7 +130,7 @@ export async function startCorePlugins() {
 async function loadPlugin(pluginZip: string): Promise<Plugin | null> {
     if (plugins[pluginZip]) return plugins[pluginZip];
 
-    logger.info(`Loading plugin from ${pluginZip}.zip`);
+    logger.info(`Loading plugin from ${pluginZip}`);
 
     let pluginName: string | null = null;
 
@@ -97,7 +138,7 @@ async function loadPlugin(pluginZip: string): Promise<Plugin | null> {
         const zip = new ZipFile(PLUGINS_DIRECTORY + pluginZip, 0, "r");
 
         zip.openEntry("manifest.json");
-        const manifest = JSON.parse(zip.readEntry("text"));
+        const manifest = JSON.parse(zip.readEntry("text")) as PluginManifest;
         pluginName = manifest.name;
         zip.closeEntry();
 
@@ -123,10 +164,11 @@ async function loadPlugin(pluginZip: string): Promise<Plugin | null> {
         // @ts-ignore
         loadedPlugin.pluginBuffer = pluginBuffer;
         loadedPlugin.enabled = false;
+        loadedPlugin.localPath = PLUGINS_DIRECTORY + pluginZip;
         plugins[manifest.name] = loadedPlugin;
 
         return loadedPlugin;
-    } catch (err) {
+    } catch (err: any) {
         logger.error(`Error loading plugin ${pluginName} from ${pluginZip}`, err);
         Toasts.open({
             content: `Error trying to load plugin ${pluginName}`,
@@ -148,7 +190,7 @@ async function startPlugin(plugin: string) {
         await loadedPlugin.start();
         loadedPlugin.enabled = true;
     } catch (err: any) {
-        loadedPlugin.errors = err.stack;
+        loadedPlugin.errors += err?.stack ?? err;
         logger.error(`Failed while starting plugin: ${loadedPlugin.manifest.name}`, err);
         Toasts.open({
             content: `${loadedPlugin.manifest.name} had an error while starting.`,
