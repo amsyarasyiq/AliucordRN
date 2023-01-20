@@ -1,5 +1,5 @@
 import { connectToDevTools, installHook } from "@aliucord/react-devtools-core";
-import { getModule } from "../../metro";
+import { getByProps, getModule } from "../../metro";
 import { Logger } from "../Logger";
 
 const logger = new Logger("ReactDevTools");
@@ -36,10 +36,11 @@ export function startReactDevTools() {
         logger.warn("Connection error: " + (e as ErrorEvent).message)
     );
 
-    const viewConfig = getModule(m => m.uiViewClassName == "RCTView");
+    const viewConfig = getByProps("validAttributes");
     const { flattenStyle } = getModule(m => m.flattenStyle);
 
     logger.info("Connecting to devtools");
+    // It doesnt load element tree for some reason since RN 0.70.6 upgrade
     connectToDevTools({
         isAppActive,
         resolveRNStyle: flattenStyle,
