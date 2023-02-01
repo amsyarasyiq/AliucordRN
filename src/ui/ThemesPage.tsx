@@ -146,7 +146,7 @@ function ThemeCard({ theme }: { theme: Theme; }) {
                                         {a.name}{multipleAuthors(i, theme.authors as Author[]) && <Text style={styles.text}>, </Text>}
                                     </Text>
                                     :
-                                    <Text>
+                                    <Text key="authors">
                                         {a.name}{multipleAuthors(i, theme.authors as Author[]) && <Text>, </Text>}
                                     </Text>
                             ))

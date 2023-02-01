@@ -124,7 +124,7 @@ function PluginCard({ plugin }: { plugin: PluginManifest }) {
                                         {a.name}{multipleAuthors(i, plugin.authors as Author[]) && <Text style={styles.text}>, </Text>}
                                     </Text>
                                     :
-                                    <Text>
+                                    <Text key="authors">
                                         {a.name}{multipleAuthors(i, plugin.authors as Author[]) && <Text>, </Text>}
                                     </Text>
                             ))

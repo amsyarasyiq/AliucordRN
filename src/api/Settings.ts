@@ -82,7 +82,7 @@ export class Settings<Schema> {
      * @param key Key
      */
     public delete<K extends keyof Schema>(key: K) {
-        if (key in this.snapshot) {
+        if (this.snapshot[key]) {
             delete this.snapshot[key];
             return this._persist();
         }
