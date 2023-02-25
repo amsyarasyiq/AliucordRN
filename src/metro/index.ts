@@ -58,12 +58,7 @@ for (const key in modules) {
         }
     }
 
-    if (!constantsModule && module?.publicModule?.exports?.NODE_SIZE) {
-        constantsModule = module.publicModule.exports;
-        continue;
-    }
-
-    if (!colorMapModule && module?.publicModule?.exports?.SemanticColorsByThemeTable) {
+    if (!colorMapModule && module?.publicModule?.exports?.SemanticColor) {
         colorMapModule = module.publicModule.exports;
         continue;
     }
@@ -84,8 +79,8 @@ if (!nullProxyFound) {
 }
 
 // Initialize themer
-if (constantsModule && colorMapModule) {
-    themerInit(constantsModule, colorMapModule);
+if (colorMapModule) {
+    themerInit(colorMapModule);
 } else {
     const state = themeState as any;
     state.isApplied = false;
@@ -364,10 +359,13 @@ export const Constants = getByProps("Fonts") as import("./constants").default;
 export const URLOpener = getByProps("openURL", "handleSupportedURL");
 export const Forms = getByProps("FormSection");
 export const Scenes = getByName("getScreens", { default: false });
-export const ColorMap = getByProps("SemanticColorsByThemeTable");
 export const ThemeManager = getByProps("updateTheme", "overrideTheme");
 export const AssetRegistry = getByProps("registerAsset");
 export const SemVer = getByProps("SemVer");
+
+export const ColorMap = getByProps("unsafe_rawColors");
+export const SemanticColors = ColorMap.colors;
+export const RawColors = ColorMap.unsafe_rawColors;
 
 export const Navigation = getByProps("pushLazy");
 export const NavigationStack = getByProps("createStackNavigator");

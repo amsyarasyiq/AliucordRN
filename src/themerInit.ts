@@ -9,19 +9,20 @@ export enum ThemeErrors {
     MODULES_NOT_FOUND = "Modules needed was not found"
 }
 
-type ThemeConstants = {
-    ThemeColorMap: Record<string, [string, string, string?]>;
-    Colors: Record<string, string>;
-    UNSAFE_Colors: Record<string, string>;
-};
-
 type ColorMap = {
-    RawColor: Record<string, string>;
-    SemanticColor: Record<string, string>; // (position -> color), (color -> position)
-    SemanticColorsByThemeTable: [Record<number, string>, Record<number, string>, Record<number, string>]; // [light, dark, amoled?]
+    RawColor: { [key: PropertyKey]: string; };
+    SemanticColor: { [key: PropertyKey]: { [key: PropertyKey]: { raw: symbol; opacity: number; }; }; };
+    default: {
+        colors: { [key: PropertyKey]: { [sym: symbol]: string; }; };
+        unsafe_rawColors: { [key: PropertyKey]: string; };
+        themes: { [key: PropertyKey]: string; };
+        meta: {
+            isSemanticColor: () => boolean,
+            resolveSemanticColor: (theme: string, color: { [key: symbol]: string; }) => string;
+        };
+    };
 };
 
-let Constants: ThemeConstants;
 let DiscordColorMap: ColorMap;
 
 const { externalStorageDirectory } = window.nativeModuleProxy.AliucordNative;
@@ -53,11 +54,9 @@ export let themeState = {} as {
 
 export const loadedThemes: Theme[] = [];
 
-export function themerInit(constants: ThemeConstants, colorMap: ColorMap) {
-    Constants = constants;
+export function themerInit(colorMap: ColorMap) {
     DiscordColorMap = colorMap;
 
-    unfreezeThemeConstants();
     handleThemeApply();
 }
 
@@ -80,10 +79,59 @@ function handleThemeApply() {
             return;
         }
 
-        // overwrite color map
-        overwriteColors(DiscordColorMap.SemanticColorsByThemeTable, theme.theme_color_map);
-        overwriteColors(DiscordColorMap.RawColor, theme.colors ?? theme.colours);
-        overwriteColors(Constants.UNSAFE_Colors, theme.unsafe_colors);
+        theme.colors ??= theme.colours;
+
+        if (theme.colors) {
+            for (const key in theme.colors) {
+                DiscordColorMap.RawColor[key] = theme.colors[key];
+            }
+        }
+
+        if (theme.theme_color_map) {
+            const map = ["dark", "light", "amoled"];
+
+            for (const key in theme.theme_color_map) {
+                if (!DiscordColorMap.SemanticColor[key]) continue;
+
+                for (const index in theme.theme_color_map[key]) {
+                    const color = theme.theme_color_map[key][index];
+                    if (!color) continue;
+
+                    const themeSymbol = Symbol(key) as symbol;
+
+                    Object.defineProperty(DiscordColorMap.RawColor, themeSymbol, {
+                        value: color,
+                        enumerable: false
+                    });
+
+                    DiscordColorMap.SemanticColor[key][map[index]] = {
+                        raw: themeSymbol,
+                        opacity: 1
+                    };
+                }
+            }
+        }
+
+        // let semanticColorSymbol: symbol;
+
+        // const orig = DiscordColorMap.default.meta.resolveSemanticColor;
+        // DiscordColorMap.default.meta.resolveSemanticColor = (themeName: string, color: { [key: symbol]: string; }) => {
+        //     semanticColorSymbol ??= Object.getOwnPropertySymbols(color)[0];
+
+        //     const key = color[semanticColorSymbol];
+        //     if (theme.theme_color_map?.[key]) {
+        //         const index = {
+        //             dark: 0,
+        //             light: 1,
+        //             amoled: 2
+        //         }[themeName.toLowerCase()] || 0;
+
+        //         const c = theme.theme_color_map[key][index];
+        //         if (c) return c;
+        //     }
+
+        //     return orig(themeName, color);
+        // };
 
         themeState = {
             currentTheme: themeName,
@@ -186,40 +234,8 @@ function loadThemes(): boolean {
     return true;
 }
 
-function unfreezeThemeConstants() {
-    Constants.UNSAFE_Colors && AliuHermes.unfreeze(Constants.UNSAFE_Colors);
-}
-
 // returns a 0xRRGGBBAA 32bit int
-function normalizeColor(color: string): number {
-    const processed = Number(window.ReactNative.processColor(color));
-    return ((processed & 0x00ffffff) << 8 | processed >>> 24) >>> 0;
-}
-
-function overwriteColors(target, source) {
-    if (!target || !source) return;
-
-    // target is SemanticColorsByThemeTable
-    if (Array.isArray(target)) {
-        // Enmity compatibility for chat background
-        source["BACKGROUND_PRIMARY"] && (source["CHAT_BACKGROUND"] ??= source["BACKGROUND_PRIMARY"]);
-
-        for (const key in source) { // ex: "CHAT_BACKGROUND"
-            if (!DiscordColorMap.SemanticColor[key]) continue; // skip if key doesn't exist in SemanticColor (ex: "BACKGROUND_PRIMARY"
-            const index = Number(DiscordColorMap.SemanticColor[key]) >>> 0; // ex: 25
-
-            for (let i = 0; i < source[key].length; i++) {
-                const isNumeric = typeof target[i][index] === "number";
-                target[i][index] = isNumeric ? normalizeColor(source[key][i]) : source[key][i];
-            }
-        }
-        return;
-    }
-
-    // target is RawColor or UNSAFE_Colors
-    for (const key in source) {
-        if (typeof target[key] === "string") {
-            target[key] = source[key];
-        }
-    }
-}
+// function normalizeColor(color: string): number {
+//     const processed = Number(window.ReactNative.processColor(color));
+//     return ((processed & 0x00ffffff) << 8 | processed >>> 24) >>> 0;
+// }
