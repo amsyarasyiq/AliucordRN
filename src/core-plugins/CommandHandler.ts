@@ -1,6 +1,7 @@
 import { ApplicationCommand, ApplicationCommandType, Commands } from "../api/Commands";
 import { Plugin } from "../entities";
-import { getByProps, SearchStore } from "../metro";
+import { getByProps } from "../metro";
+import { SearchStore } from "../metro/common";
 import { after } from "../utils/patcher";
 
 export default class CommandHandler extends Plugin {

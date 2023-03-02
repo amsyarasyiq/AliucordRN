@@ -1,6 +1,6 @@
 import { disablePlugin, enablePlugin, isPluginEnabled, plugins, uninstallPlugin } from "../../api/PluginManager";
 import { Plugin, PluginManifest } from "../../entities";
-import { Constants, Dialog, Navigation, NavigationNative, React, SemanticColors, SemVer, Styles, URLOpener } from "../../metro";
+import { Constants, Dialog, Navigation, NavigationNative, React, SemanticColors, SemVer, Styles, URLOpener } from "../../metro/common";
 import { getAssetId } from "../../utils/getAssetId";
 import { Forms, General, Search, styles } from "../components";
 import Card from "../components/Card";

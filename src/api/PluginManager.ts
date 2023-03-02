@@ -4,7 +4,7 @@ import CommandHandler from "../core-plugins/CommandHandler";
 import CoreCommands from "../core-plugins/CoreCommands";
 import NoTrack from "../core-plugins/NoTrack";
 import { Plugin, PluginManifest } from "../entities";
-import { Toasts } from "../metro";
+import { Toasts } from "../metro/common";
 import { deleteFile, exists, readdir } from "../native/fs";
 import { getAssetId, Logger } from "../utils";
 import { PLUGINS_DIRECTORY } from "../utils/constants";

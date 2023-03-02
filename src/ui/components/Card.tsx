@@ -1,6 +1,6 @@
 import { Button, Forms, General, styles } from ".";
 import { Author } from "../../entities";
-import { FetchUserActions, Profiles, React, Users } from "../../metro";
+import { FetchUserActions, Profiles, React, Users } from "../../metro/common";
 import { getAssetId } from "../../utils";
 
 type HeaderTextProps = {

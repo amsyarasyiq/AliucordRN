@@ -1,6 +1,6 @@
 import { setTheme } from "../../api/Themer";
 import { Theme } from "../../entities";
-import { React, URLOpener } from "../../metro";
+import { React, URLOpener } from "../../metro/common";
 import { excludedThemes, InvalidTheme, loadedThemes, ThemeErrors, themeState } from "../../themerInit";
 import { getAssetId } from "../../utils/getAssetId";
 import { Forms, General, Search, styles } from "../components";

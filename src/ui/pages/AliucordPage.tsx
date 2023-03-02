@@ -1,6 +1,5 @@
 import { useSettings } from "../../api/Settings";
-import { Forms, React, ReactNative } from "../../metro";
-import { URLOpener } from "../../metro/index";
+import { Forms, React, ReactNative, URLOpener } from "../../metro/common";
 import { ALIUCORD_GITHUB, ALIUCORD_INVITE, ALIUCORD_PATREON } from "../../utils/constants";
 import { startReactDevTools } from "../../utils/debug";
 import { startDebugWs, stopDebugWs } from "../../utils/debug/DebugWS";

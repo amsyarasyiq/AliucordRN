@@ -1,7 +1,9 @@
 import { Plugin } from "../entities";
-import { Dialog, Forms, getByName, React, ReactNative, Styles } from "../metro";
+import { getByName } from "../metro";
+import { Dialog, Forms, React, ReactNative, Styles } from "../metro/common";
 import { getAssetId } from "../utils";
 
+const { View } = ReactNative;
 const { FormRow, FormIcon } = Forms;
 
 export default class ChatGuard extends Plugin {
@@ -40,7 +42,7 @@ export default class ChatGuard extends Plugin {
                         {
                             settings.get("acknowlegedNoSupportChannels", false) ? component.props.children :
 
-                                <ReactNative.View
+                                <View
                                     style={styles.chatbox}>
                                     <FormRow
                                         label={this.MESSAGE_SHORT}
@@ -57,7 +59,7 @@ export default class ChatGuard extends Plugin {
                                             });
                                         }}
                                     />
-                                </ReactNative.View>
+                                </View>
                         }
                     </>
                 ];

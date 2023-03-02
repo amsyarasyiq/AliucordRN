@@ -1,10 +1,10 @@
-import { ReactNative } from "../metro";
+import { getByProps } from "../metro";
 
 /**
  * Aliucord's java native module
  * @private You should not be using this directly
  */
-export const AliucordNative = ReactNative.NativeModules.AliucordNative as {
+export const AliucordNative = getByProps("View").NativeModules.AliucordNative as {
     listNativeModules: () => Promise<Record<string, string[]>>;
     checkPermissions: () => Promise<boolean>;
     requestPermissions: () => Promise<boolean>;

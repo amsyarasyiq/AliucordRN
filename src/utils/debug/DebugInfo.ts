@@ -1,5 +1,5 @@
 import type { PlatformAndroidStatic } from "react-native";
-import { React, ReactNative } from "../../metro";
+import { React, ReactNative } from "../../metro/common";
 
 export const DebugInfo = {
     get discordVersion(): string {

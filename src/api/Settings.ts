@@ -1,4 +1,4 @@
-import { React } from "../metro";
+import { React } from "../metro/common";
 import { exists, readFile, writeFile } from "../native/fs";
 import { SETTINGS_DIRECTORY } from "../utils/constants";
 

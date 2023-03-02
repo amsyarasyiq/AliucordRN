@@ -1,5 +1,6 @@
 import { Plugin } from "../entities";
-import { getByName, React, Styles, Toasts } from "../metro";
+import { getByName } from "../metro";
+import { React, Styles, Toasts } from "../metro/common";
 import { General } from "../ui/components";
 import { after } from "../utils/patcher";
 
