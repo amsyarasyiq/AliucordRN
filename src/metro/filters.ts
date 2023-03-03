@@ -13,7 +13,7 @@ function blacklist(id: number) {
     });
 }
 
-// Checks if a module has a specific property
+// Checks if a module has a specific property and return the exports
 function withProp(module: any, prop: string) {
     return (
         module?.isInitialized
