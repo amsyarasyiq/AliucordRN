@@ -1,5 +1,5 @@
 import type { EmitterSubscription, ImageSourcePropType, ImageStyle, TextStyle, ViewStyle } from "react-native";
-import { getByName, getByProps, getByStoreName, getModule } from ".";
+import { getByName, getByProps, getByStoreName, getModule } from "./filters";
 
 export const UserStore = getByStoreName("UserStore");
 export const GuildStore = getByStoreName("GuildStore");

@@ -1,5 +1,5 @@
-import { getByName, getByProps } from "../../metro";
 import { Constants, SemanticColors, Styles } from "../../metro/common";
+import { getByName, getByProps } from "../../metro/filters";
 
 export const Forms = getByProps("FormSection");
 export const General = getByProps("Button", "Text", "View") as typeof import("react-native");
