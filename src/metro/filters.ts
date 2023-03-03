@@ -14,10 +14,14 @@ function blacklist(id: number) {
 }
 
 // Checks if a module has a specific property and return the exports
-function withProp(module: any, prop: string) {
+function withProp(module: any, prop: string, getDefault = false) {
     return (
         module?.isInitialized
-        && module.publicModule.exports?.[prop] !== undefined
+        && (
+            !getDefault
+                ? module.publicModule.exports?.[prop] !== undefined
+                : module.publicModule.exports?.default?.[prop] !== undefined
+        )
         && module.publicModule.exports
         || undefined
     );
@@ -37,7 +41,7 @@ for (const key in modules) {
         window.ReactNative ??= withProp(module, "View");
 
         // Themer has to be initialized very early before Discord requiring its colors
-        if (withProp(module, "SemanticColor")) {
+        if (withProp(module, "unsafe_rawColors", true)) {
             themerInit(module.publicModule.exports);
         }
     }

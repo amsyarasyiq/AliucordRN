@@ -9,21 +9,37 @@ export enum ThemeErrors {
     MODULES_NOT_FOUND = "Modules needed was not found"
 }
 
-type ColorMap = {
-    RawColor: { [key: PropertyKey]: string; };
-    SemanticColor: { [key: PropertyKey]: { [key: PropertyKey]: { raw: symbol; opacity: number; }; }; };
-    default: {
-        colors: { [key: PropertyKey]: { [sym: symbol]: string; }; };
-        unsafe_rawColors: { [key: PropertyKey]: string; };
-        themes: { [key: PropertyKey]: string; };
-        meta: {
-            isSemanticColor: () => boolean,
-            resolveSemanticColor: (theme: string, color: { [key: symbol]: string; }) => string;
-        };
+type Resolver = {
+    css: string;
+    spring: (...opt) => string | any;
+    hsl: (...opt) => string | any;
+};
+
+let RawColor: { [key: PropertyKey]: string; };
+let SemanticColor: { [key: PropertyKey]: { [key: PropertyKey]: { raw: symbol; opacity: number; }; }; };
+
+let ColorMap: {
+    colors: { [key: PropertyKey]: { [sym: symbol]: string; }; };
+    unsafe_rawColors: { [key: PropertyKey]: string; };
+    themes: { [key: PropertyKey]: string; };
+    meta: {
+        isSemanticColor: () => boolean,
+        resolveSemanticColor: (theme: string, color: { [key: symbol]: string; }) => string;
     };
 };
 
-let DiscordColorMap: ColorMap;
+let ColorResolvers: {
+    colors: {
+        [key: PropertyKey]: {
+            css: string,
+            resolve: (...opt) => Resolver;
+        };
+    };
+    themes: { [key: PropertyKey]: string; };
+    unsafe_rawColors: {
+        [key: PropertyKey]: Resolver;
+    };
+};
 
 const { externalStorageDirectory } = window.nativeModuleProxy.AliucordNative;
 const SETTINGS_DIRECTORY = externalStorageDirectory + "/AliucordRN/settings/";
@@ -54,10 +70,17 @@ export let themeState = {} as {
 
 export const loadedThemes: Theme[] = [];
 
-export function themerInit(colorMap: ColorMap) {
-    DiscordColorMap = colorMap;
+export function themerInit(colorMapper) {
+    if (colorMapper.default?.meta) {
+        SemanticColor = colorMapper.SemanticColor;
+        RawColor = colorMapper.RawColor;
+        ColorMap = colorMapper.default;
+    } else {
+        ColorResolvers = colorMapper.default;
+    }
 
-    handleThemeApply();
+    console.log("Themer init", colorMapper);
+    ColorMap && ColorResolvers && handleThemeApply();
 }
 
 function handleThemeApply() {
@@ -81,17 +104,56 @@ function handleThemeApply() {
 
         theme.colors ??= theme.colours;
 
+        // so it works like old behaviour
+        // for (const key in DiscordColorMap.SemanticColor) {
+        //     const obj = DiscordColorMap.SemanticColor[key];
+        //     if (!obj) continue;
+
+        //     for (const index in obj) {
+        //         const themeSymbol = Symbol() as symbol;
+        //         const original = DiscordColorMap.RawColor[obj[index].raw];
+
+        //         DiscordColorMap.RawColor[themeSymbol] = original;
+        //         obj[index].raw = themeSymbol;
+        //     }
+        // }
+
+        // Temporary, Discord hasn't use it yet
+        // It will certainly break in the future
+        const fakeResolver = {
+            css: "This was faked!",
+            spring: () => { /* no */ },
+            hsl: () => { /* no */ }
+        } as Resolver;
+
+        // Just so it behaves like old behaviour
+        for (const key in SemanticColor) {
+            const obj = SemanticColor[key];
+
+            ColorResolvers.colors[key].resolve = () => fakeResolver;
+
+            for (const index in obj) {
+                const original = RawColor[obj[index].raw];
+                const themeSymbol = Symbol(original) as symbol;
+
+                obj[index].raw = themeSymbol;
+                RawColor[themeSymbol] = original;
+            }
+        }
+
         if (theme.colors) {
             for (const key in theme.colors) {
-                DiscordColorMap.RawColor[key] = theme.colors[key];
+                RawColor[key] = theme.colors[key];
             }
         }
 
         if (theme.theme_color_map) {
             const map = ["dark", "light", "amoled"];
 
+            theme.theme_color_map["CHAT_BACKGROUND"] ??= theme.theme_color_map["BACKGROUND_PRIMARY"];
+
             for (const key in theme.theme_color_map) {
-                if (!DiscordColorMap.SemanticColor[key]) continue;
+                if (!SemanticColor[key]) continue;
 
                 for (const index in theme.theme_color_map[key]) {
                     const color = theme.theme_color_map[key][index];
@@ -99,39 +161,18 @@ function handleThemeApply() {
 
                     const themeSymbol = Symbol(key) as symbol;
 
-                    Object.defineProperty(DiscordColorMap.RawColor, themeSymbol, {
+                    Object.defineProperty(RawColor, themeSymbol, {
                         value: color,
                         enumerable: false
                     });
 
-                    DiscordColorMap.SemanticColor[key][map[index]] = {
+                    SemanticColor[key][map[index]] = {
                         raw: themeSymbol,
                         opacity: 1
                     };
                 }
             }
         }
-
-        // let semanticColorSymbol: symbol;
-
-        // const orig = DiscordColorMap.default.meta.resolveSemanticColor;
-        // DiscordColorMap.default.meta.resolveSemanticColor = (themeName: string, color: { [key: symbol]: string; }) => {
-        //     semanticColorSymbol ??= Object.getOwnPropertySymbols(color)[0];
-
-        //     const key = color[semanticColorSymbol];
-        //     if (theme.theme_color_map?.[key]) {
-        //         const index = {
-        //             dark: 0,
-        //             light: 1,
-        //             amoled: 2
-        //         }[themeName.toLowerCase()] || 0;
-
-        //         const c = theme.theme_color_map[key][index];
-        //         if (c) return c;
-        //     }
-
-        //     return orig(themeName, color);
-        // };
 
         themeState = {
             currentTheme: themeName,
@@ -140,12 +181,13 @@ function handleThemeApply() {
             noAMOLED: !!theme.theme_color_map && !Object.values(theme.theme_color_map)[0][2]
         };
     } catch (error) {
-        themeState = {
-            isApplied: false,
-            anError: true,
-            reason: ThemeErrors.UNEXPECTED_ERROR,
-            errorArgs: [error]
-        };
+        console.error(error);
+        // themeState = {
+        //     isApplied: false,
+        //     anError: true,
+        //     reason: ThemeErrors.UNEXPECTED_ERROR,
+        //     errorArgs: [error]
+        // };
     }
 }
 
