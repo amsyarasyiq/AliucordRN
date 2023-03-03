@@ -1,4 +1,4 @@
-import { DiscordNavigator, Navigation, React } from "../../metro";
+import { DiscordNavigator, Navigation, React } from "../../metro/common";
 
 /**
  * Most options props of Stack.Screen are valid (besides animation). Refer https://reactnavigation.org/docs/stack-navigator/#options

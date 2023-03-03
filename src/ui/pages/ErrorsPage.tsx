@@ -1,5 +1,5 @@
 import { plugins } from "../../api";
-import { React } from "../../metro";
+import { React } from "../../metro/common";
 import { getAssetId } from "../../utils";
 import { General, styles } from "../components";
 import Card from "../components/Card";

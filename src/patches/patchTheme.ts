@@ -1,6 +1,6 @@
 import { logger } from "../Aliucord";
 import { onStartup } from "../api/Themer";
-import { AMOLEDThemeManager, AMOLEDThemeState, FluxDispatcher, setAMOLEDThemeEnabledBypass, ThemeManager, ThemeStore, UnsyncedUserSettingsStore } from "../metro";
+import { AMOLEDThemeManager, FluxDispatcher, ThemeManager, ThemeStore, UnsyncedUserSettingsStore } from "../metro/common";
 import { themeState } from "../themerInit";
 
 export default function patchTheme() {
@@ -18,9 +18,9 @@ export default function patchTheme() {
 
                 if (AMOLEDThemeManager) {
                     if (themeState.isApplied && themeState.noAMOLED) {
-                        setAMOLEDThemeEnabledBypass(false);
+                        // setAMOLEDThemeEnabledBypass(false);
                         logger.info("Disabled AMOLED theme as it's unsupported by current custom theme.");
-                    } else if (UnsyncedUserSettingsStore.useAMOLEDTheme === AMOLEDThemeState.ON) {
+                    } else if (UnsyncedUserSettingsStore.useAMOLEDTheme === 2) {
                         AMOLEDThemeManager.setAMOLEDThemeEnabled(true);
                         logger.info("Enabled AMOLED theme");
                     }

@@ -1,4 +1,4 @@
-import { getByProps } from "../metro";
+import { getByProps } from "../metro/common";
 
 const DiscordLogger = getByProps("setLogFn").default;
 

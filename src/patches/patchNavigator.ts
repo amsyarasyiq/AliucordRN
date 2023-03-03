@@ -1,6 +1,6 @@
 import { NativeEventSubscription } from "react-native";
 import { logger } from "../Aliucord";
-import { DiscordNavigator, ReactNative } from "../metro";
+import { DiscordNavigator, ReactNative } from "../metro/common";
 import { before } from "../utils/patcher";
 
 /**

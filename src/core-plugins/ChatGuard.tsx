@@ -1,5 +1,6 @@
 import { Plugin } from "../entities";
-import { Dialog, Forms, getByName, React, ReactNative, Styles } from "../metro";
+import { Dialog, Forms, React, ReactNative, Styles } from "../metro/common";
+import { getByName } from "../metro/filters";
 import { getAssetId } from "../utils";
 
 const { FormRow, FormIcon } = Forms;

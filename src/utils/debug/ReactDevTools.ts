@@ -1,6 +1,6 @@
 import { connectToDevTools, installHook } from "@aliucord/react-devtools-core";
 import { settings } from "../../Aliucord";
-import { getModule } from "../../metro";
+import { getModule } from "../../metro/filters";
 import { Logger } from "../Logger";
 
 const logger = new Logger("ReactDevTools");

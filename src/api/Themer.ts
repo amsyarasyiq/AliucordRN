@@ -1,6 +1,6 @@
 /* eslint-disable indent */
 import { Theme } from "../entities";
-import { Dialog, ReactNative, Toasts } from "../metro";
+import { Dialog, ReactNative, Toasts } from "../metro/common";
 import { excludedThemes, ThemeErrors, themeState } from "../themerInit";
 import { getAssetId, Logger } from "../utils";
 

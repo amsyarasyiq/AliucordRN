@@ -1,8 +1,9 @@
 import { version } from "../Aliucord";
-import { getByName, Locale, NavigationNative, React, Scenes } from "../metro";
+import { Locale, NavigationNative, React, Scenes } from "../metro/common";
 import { findInReactTree, getAssetId } from "../utils";
 import { after } from "../utils/patcher";
 
+import { getByName } from "../metro/filters";
 import { Forms } from "../ui/components";
 import AliucordPage from "../ui/pages/AliucordPage";
 import ErrorsPage from "../ui/pages/ErrorsPage";

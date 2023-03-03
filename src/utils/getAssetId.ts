@@ -1,4 +1,4 @@
-import { AssetRegistry } from "../metro";
+import { AssetRegistry } from "../metro/common";
 import { after } from "./patcher";
 
 export const assetMap = {};

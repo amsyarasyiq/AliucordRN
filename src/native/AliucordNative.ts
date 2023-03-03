@@ -1,4 +1,4 @@
-import { ReactNative } from "../metro";
+import { ReactNative } from "../metro/common";
 
 /**
  * Aliucord's java native module

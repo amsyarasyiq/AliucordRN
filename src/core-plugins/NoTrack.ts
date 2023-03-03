@@ -3,7 +3,7 @@
 // https://github.com/powercord-org/powercord/blob/v2/src/Powercord/coremods/no-track/index.js
 
 import { Plugin } from "../entities";
-import { getByProps } from "../metro";
+import { getByProps } from "../metro/common";
 import { insteadDoNothing } from "../utils/patcher";
 
 export default class NoTrack extends Plugin {
