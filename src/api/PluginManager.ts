@@ -121,27 +121,31 @@ async function loadPlugin(pluginZip: string): Promise<Plugin | null> {
 
     logger.info(`Loading plugin from ${pluginZip}`);
 
-    let pluginName: string | null = null;
+    let manifest: PluginManifest = {} as PluginManifest,
+        pluginBuffer: ArrayBuffer;
 
     try {
         const zip = new ZipFile(PLUGINS_DIRECTORY + pluginZip, 0, "r");
 
-        zip.openEntry("manifest.json");
-        const manifest = JSON.parse(zip.readEntry("text")) as PluginManifest;
-        pluginName = manifest.name;
-        zip.closeEntry();
+        try {
+            zip.openEntry("manifest.json");
+            manifest = JSON.parse(zip.readEntry("text")) as PluginManifest;
+            zip.closeEntry();
 
+            zip.openEntry("index.js.bundle");
+            pluginBuffer = zip.readEntry("binary");
+            zip.closeEntry();
+        } finally {
+            zip.close();
+        }
+
+        const pluginName = manifest?.name;
         if (!pluginName)
             throw new Error(`Plugin ${pluginZip}.zip contains invalid manifest`);
         if (plugins[pluginName]) {
             logger.info(`Plugin ${pluginName} already loaded, skipping`);
             return plugins[manifest.name];
         }
-
-        zip.openEntry("index.js.bundle");
-        const pluginBuffer = zip.readEntry("binary");
-        zip.closeEntry();
-        zip.close();
 
         const pluginClass = AliuHermes.run(pluginZip, pluginBuffer) as typeof Plugin;
         if (!(pluginClass?.prototype instanceof Plugin))
@@ -158,12 +162,12 @@ async function loadPlugin(pluginZip: string): Promise<Plugin | null> {
 
         return loadedPlugin;
     } catch (err: any) {
-        window.Aliucord.errors[`Plugin load: ${pluginName ?? pluginZip}`]
+        window.Aliucord.errors[`Plugin load: ${manifest.name ?? pluginZip}`]
             = "Error occured while loading the plugin: \n" + err?.stack ?? err;
 
-        logger.error(`Error loading plugin ${pluginName} from ${pluginZip}`, err);
+        logger.error(`Error loading plugin ${manifest.name} from ${pluginZip}`, err);
         Toasts.open({
-            content: `Error trying to load plugin ${pluginName ?? pluginZip}`,
+            content: `Error trying to load plugin ${manifest.name ?? pluginZip}`,
             source: getAssetId("Small")
         });
         return null;

@@ -122,8 +122,8 @@ function handleThemeApply() {
         // It will certainly break in the future
         const fakeResolver = {
             css: "This was faked!",
-            spring: () => { /* no */ },
-            hsl: () => { /* no */ }
+            spring: () => "#000000",
+            hsl: () => "#000000"
         } as Resolver;
 
         // Just so it behaves like old behaviour

@@ -20,7 +20,7 @@ export default defineConfig([
             commonjs(),
             aliucord({
                 autoDeploy: process.env.ROLLUP_WATCH !== undefined,
-                packageName: "com.aliucord"
+                packageName: "com.discord"
             })
         ],
         onwarn: (warning, next) => {
